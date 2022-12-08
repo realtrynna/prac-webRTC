@@ -1,10 +1,13 @@
 import { Service } from "typedi";
 
+import { SignUpDao } from "../daos";
+import { SignUpDto } from "../dtos";
+
 @Service()
 export class UserService {
-    constructor() {}
+    constructor(private readonly userDao: SignUpDao) {}
 
-    async getUsers() {
-        console.log("hello world!");
+    async signUp({ nickname, password }: SignUpDto) {
+        
     }
-}
+}   

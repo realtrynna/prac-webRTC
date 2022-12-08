@@ -4,9 +4,87 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title></title>
 </head>
 <body>
-    {{ name }}
+    <div class="main">
+        <input type="text" class="roomTitleValue" placeholder="방 이름">
+        <button class="roomJoinBtn">입장</button>
+    </div>
+
+    <div class="room">
+        <h3 class="roomTitle"></h3>
+        <ul>
+        </ul>
+        <input type="text" class="roomMessageValue" placeholder="메세지 전송">
+        <button class="sendMessageBtn">전송</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const $main = document.querySelector(".main");
+        const $roomTitleInput = document.querySelector(".roomTitleValue");
+        const $roomMessageInput = document.querySelector(".roomMessageValue");
+        const $sendMessageBtn = document.querySelector(".sendMessageBtn");
+        const $connectBtn = document.querySelector(".connectBtn");
+        const $roomJoinBtn = document.querySelector(".roomJoinBtn");
+        const $room = document.querySelector(".room");
+        const $roomTitle = document.querySelector(".roomTitle");
+        const $ul = document.querySelector("ul");
+
+        let currentRoomTitle = null;
+
+        $room.style.display = "none";
+
+        const socket = io.connect("http://localhost:1000", {
+            path: "/socket.io",
+            transports: ["websocket"],
+        });
+
+        function addMessage(message) {
+            const li = document.createElement("li");
+            li.textContent = message;
+            $ul.appendChild(li);
+        }
+
+        function sendMessage(message) {
+            const roomTitle = $roomTitle.textContent.split(" ")[2];
+
+            socket.emit("sendMessage", {
+                roomTitle,
+                message: $roomMessageInput.value,
+            }, (data) => {
+                addMessage(`나 ${$roomMessageInput.value}`);
+            });
+        }
+
+        function showRoom(response) {
+            $roomTitle.textContent = `방 이름 ${$roomTitleInput.value}`;
+            $main.style.display = "none";
+            $room.style.display = "block";
+        }
+
+        async function roomJoin() {
+            const roomTitle = $roomTitleInput.value;
+
+            socket.emit("room", roomTitle, showRoom);
+        }
+
+        $roomJoinBtn.addEventListener("click", roomJoin);
+        $sendMessageBtn.addEventListener("click", sendMessage);
+
+        socket.on("roomJoin", data => {
+            addMessage(data.message);
+        });
+        socket.on("leave", () => {
+            addMessage("안녕히계세요. 여러분");
+        });
+        socket.on("sendMessage", data => {
+            const { message } = data;
+
+            addMessage(message);
+        });
+    </script>
 </body>
 </html>

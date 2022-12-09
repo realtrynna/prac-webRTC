@@ -20,6 +20,10 @@ export class UserController {
         { body }: Request<unknown, unknown, SignUpDto>,
         res: Response 
     ) => {
+        const signUpUserResult = await this.userService.signUp(body);
+
         
+
+        return res.status(201).json(signUpUserResult);
     }   
 }

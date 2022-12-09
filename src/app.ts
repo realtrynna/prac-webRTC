@@ -6,7 +6,7 @@ import morgan from "morgan";
 import nunjucks from "nunjucks";
 
 import { port } from "./config";
-import { indexRouter, userRouter } from "./routes/index";
+import { indexRouter, userRouter, mediaRouter } from "./routes/index";
 
 export async function bootstrap() {
     const app = express();
@@ -26,6 +26,7 @@ export async function bootstrap() {
 
     app.use("/", indexRouter);
     app.use("/user", userRouter);
+    app.use("/media", mediaRouter);
 
     return app;
 }

@@ -99,3 +99,155 @@ socket.io("방 이름").emit("이벤트 이름", "data")
 
 <br>
 
+## 비디오
+* 사용자의 비디오를 가져오고 화면에 출력 <br>
+
+* 스트림이란 비디오와 오디오가 결합된 형태 <br>
+
+* 스트림은 Track을 제공함 <br>
+
+## webRTC
+시그널링이 끝나면 Peer들간 연결이 성립됨
+
+* 시그널링
+> 내가 상대방과 Peer 연결이 하고 싶다면 나는 상대방의 IP, Firewall, Network를 어떻게 알까?
+> 나는 시그널링 서버에게 위치, Setting, Configuration, 방화벽, 라우터를 전달함 
+> 시그널링 서버는 비디오와 오디오를 전달하는 게 아닌 Peer들의 위치만 전달함
+
+1. 브라우저간 피어 생성
+```javascript
+    myPeerConnection = new RTCPeerConnection()
+```
+
+<br>
+
+2. 피여 연결? 
+* 미디어 생성(Stream) <br>
+
+```javascript
+// 사용자 미디어 생성
+localStream = await navigator.mediaDevices.getUserMedia(userMediaConfig)
+```
+
+<br>
+
+* 연결 피어(RTCPeerConnection) 생성
+
+```javascript
+localPeerConnection = await new RTCPeerConnection()
+```
+
+<br>
+
+* 생성된 연결 피어에 Track과 Stream 추가
+
+```javascript
+localStream
+    .getTracks().
+    .forEach(track => localPeerConnection.addTrack(track, localStream))
+```
+
+<br>
+
+* offer(상대방에게 보내는 초대장 개념) 생성
+* 상대방이 들어왔을 경우 socket.on에서 이벤트를 받아서 실행
+* offer를 만들어서 연결을 구성해야함
+
+```javascript
+// RTCSessionDescription
+const offer = await localPeerConnection.createOffer();
+```
+
+<br>
+
+* 생성된 피어 A의 offer를 토대로 연결 피어에 setLocalDescription 생성 후 시그널링 서버(socket/IO)로 전달 후 피어 B에게 A의 offer 정보 전달 
+
+```javascript
+// 피어 A
+// 시그널링 서버로 offer 전송
+myPeerConnection.setLocalDescription(offer)
+
+socket.emit("offer", {
+    offer,
+    roomTitle,
+});
+```
+
+```typescript
+// 시그널링 서버(socket/IO)
+// 받은 offer를 피어 B에게 전달
+socket.on("offer", data => {
+    const { offer, roomTitle } = data;
+
+    socket.to(roomTitle).emit("offer", offer);
+})
+```
+
+* 피어 A에게 받은 offer를 통해 setRemoteDescription 추가
+* 피어 B가 answer 추가 후 setLocalDescription
+* answer를 시그널링 서버로 전송
+* 시그널링 서버는 피어 A에게 answer 전송
+* 피어 A는 받은 answer를 setRemoteDescription
+
+```javascript
+// 피어 B
+socket.on("offer", async data => {
+    // data === offer
+    localPeerConnection.setRemoteDescription(data); 
+
+    const answer = await localPeerConnection.createAnswer();
+
+    localPeerConnection.setLocalDescription(answer);
+
+    socket.emit("answer", {
+        answer,
+        roomTitle,
+    });
+})
+```
+
+```typescript
+// 시그널링 서버(socket/IO)
+socket.on("answer", data => {
+    const { answer, roomTitle } = data;
+
+    socket.to(roomTitle).emit("answer", answer);
+})
+```
+
+```javascript
+// 피어 A
+socket.on("answer", async data => {
+    // data === answer
+    localPeerConnection.setRemoteDescription(data);
+})
+```
+
+* 피어들간 offer&answer 과정이 끝나면 양쪽에서 iceCandidate 이벤트가 발생함
+
+## iceCandidate (Internet Connectivity Establishment) 인터넷 연결 생성
+
+> 브라우저가 서로 소통할 수 있게 해주는 방법
+> webRTC에 필요한 프로토콜을 의미함 <br>
+> 멀리 떨어진 장치와 소통할 수 있게함 <br>
+> 어떤 소통 방법이 가장 좋은지 제안함 <br>
+> 다수의 candidate(후보)들이 각각의 연결에서 제안됨 <br>
+
+* 연결 피어(RTCPeerConnection) 생성과 동시에 iceCandidate 이벤트 수신
+
+```javascript
+localPeerConnection.addEventListener("icecandidate");
+```
+
+* candidate를 다시 브라우저로 보내야함
+
+> candidate들은 브라우저에 의해 생성됨
+> 생성된 candidate들은 다른 브라우저로 전송되지 않음
+
+* candidate 이벤트 생성
+
+```typescript
+socket.on("ice", (ice, roomTitle) => {
+    socket.to(roomTitle).emit("ice", ice);
+})
+```

@@ -33,7 +33,7 @@
     "nunjucks": "^3.2.3",
     "prisma": "^4.7.1",
     "reflect-metadata": "^0.1.13",
-    "socket.io": "4.4",
+    "socket.io": "4.1",
     "typedi": "^0.10.0"
   },
   "devDependencies": {

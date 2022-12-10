@@ -1,18 +1,24 @@
 import http from "http";
 import chalk from "chalk";
+import { Server } from "socket.io";
 
 import { bootstrap } from "./app";
 import socketServer from "./socket";
+import { port } from "./config";
 
 bootstrap()
     .then(app => {
         const server = http.createServer(app);
-
-        socketServer(server);
         
-        server.listen(1000, () => {
+        process.setMaxListeners(15);
+
+        console.log(port);
+
+        socketServer(server, app);
+        
+        server.listen(port, () => {
             console.log(chalk.bgBlue.red(`
-                🛡️Server listening on port ${app.get("port")}🛡️
+                🛡️Server listening on port ${port}🛡️
             `));
         });
     });

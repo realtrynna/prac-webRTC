@@ -7,9 +7,16 @@ import { IndexService } from "../services/index";
 export class IndexController {
     constructor (private readonly indexService: IndexService) {}
 
-    getUsers = async (req: Request, res: Response) => {
-        res.render("index", {
-            name: "윤승근",
-        });
-    }   
+    indexRender = async (_req: Request, res: Response) => {
+        return res.render("index");
+    }
+    
+    joinRoom = async (req: Request, res: Response) => {
+        console.log("서버 실행");
+        const io = req.app.get("io");
+        
+        io.of("/room").emit("roomJoin", "hello!!!");
+        
+        res.json("here");
+    }
 }

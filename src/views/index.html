@@ -41,54 +41,22 @@
 
         $room.style.display = "none";
 
-        const socket = io.connect("http://localhost:1000", {
+        const socket = io.connect("http://localhost:2000/room", {
             path: "/socket.io",
             transports: ["websocket"],
         });
 
-        function addMessage(message) {
-            const li = document.createElement("li");
-            li.textContent = message;
-            $ul.appendChild(li);
+        async function joinRoom() {
+            const req = await axios.post("http://localhost:2000/");
+
+            console.log(req);
+            
         }
-
-        function sendMessage(message) {
-            const roomTitle = $roomTitle.textContent.split(" ")[2];
-
-            socket.emit("sendMessage", {
-                roomTitle,
-                message: $roomMessageInput.value,
-            }, (data) => {
-                addMessage(`나 ${$roomMessageInput.value}`);
-            });
-        }
-
-        function showRoom(response) {
-            $roomTitle.textContent = `방 이름 ${$roomTitleInput.value}`;
-            $main.style.display = "none";
-            $room.style.display = "block";
-        }
-
-        async function roomJoin() {
-            const roomTitle = $roomTitleInput.value;
-
-            socket.emit("room", roomTitle, showRoom);
-        }
-
-        $roomJoinBtn.addEventListener("click", roomJoin);
-        $sendMessageBtn.addEventListener("click", sendMessage);
-
+        
         socket.on("roomJoin", data => {
-            addMessage(data.message);
+            console.log(data);
         });
-        socket.on("leave", () => {
-            addMessage("안녕히계세요. 여러분");
-        });
-        socket.on("sendMessage", data => {
-            const { message } = data;
-
-            addMessage(message);
-        });
+        $roomJoinBtn.addEventListener("click", joinRoom);
     </script>
 </body>
 </html>

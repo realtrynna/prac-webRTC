@@ -19,18 +19,30 @@
     <div>비번<input type="password" class="password"></div>
     <button>가입</button>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        const socket = io.connect("http://localhost:1000", {
+            path: "/socket.io",
+            transports: ["websocket"],
+        });
         const $btn = document.querySelector("button");
         const $nicknameInput = document.querySelector(".nickname");
         const $passwordInput = document.querySelector(".password");
 
         $btn.addEventListener("click", async () => {
+            console.log("실행됩니당.");
             const req = await axios.post("http://localhost:1000/user", {
                 nickname: $nicknameInput.value,
                 password: $passwordInput.value,
             });
 
-            window.location.href = "/";
+            console.log(req);
+
+            socket.emit("main", {
+                message: "반갑습니당",
+            });
+
+            console.log("클라이언트 메인 이벤트 전송");
         });
     </script>
 </body>

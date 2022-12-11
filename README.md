@@ -1,3 +1,8 @@
+# etc
+```typescript
+Request<params, res.body, req.body, req.query>
+```
+
 ## adapter
 A와 B서버가 있을 경우 <br>
 
@@ -251,3 +256,15 @@ socket.on("ice", (ice, roomTitle) => {
     socket.to(roomTitle).emit("ice", ice);
 })
 ```
+
+### STUN
+같은 와이파이가 아닐 경우 서로의 스트림을 받지않음. <br>
+스턴 서버는 컴퓨터가 공용 IP 주소를 찾게해줌. <br>
+어떤 걸 요청하면 인터넷에 내가 누군지를 알려주는 서버임. <br>
+
+
+
+
+
+
+

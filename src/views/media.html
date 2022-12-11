@@ -13,22 +13,34 @@
         <button class="roomJoinBtn">입장</button>
     </div>
     <div class="videoWrapper">
-        <div>
-            <video class="localVideo" autoplay playsinline></video>
+        <div class="videoParent">
         </div>
         <div>
+            <video class="localVideo" autoplay playsinline></video>
             <button class="sound">음소거 켜기</button>
             <button class="video">비디오 끄기</button>
+        </div>
+        <video class="targetVideo" autoplay playsinline></video>
+    </div>
+    <div class="wrapper">
+        <div class="display-container">
+            <ul class="chatting-list">
+            </ul>
+        </div>
+        <div class="input-container">
+            <input type="text" class="chattingInput" placeholder="채팅">
+            <button class="send">전송</button>
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
-        const socket = io.connect("http://localhost:1000", {
+        const socket = io.connect("http://localhost:2000", {
             path: "/socket.io",
             transports: ["websocket"],
         });
-
+        const $chattingInput = document.querySelector(".chattingInput");
+        const $sendBtn = document.querySelector(".send");
         const $roomTitle = document.querySelector("h2");
         const $roomTitleValue = document.querySelector(".roomTitleValue");
         const $videoWrapper = document.querySelector(".videoWrapper");
@@ -36,6 +48,8 @@
         const $soundBtn = document.querySelector(".sound");
         const $videoBtn = document.querySelector(".video");
         const $roomJoinBtn = document.querySelector(".roomJoinBtn");
+        const $targetVideo = document.querySelector(".targetVideo");
+        const $chatList = document.querySelector(".chatting-list");
 
         const userVideoDevice = "videoinput";
         const userMediaConfig = {
@@ -93,7 +107,9 @@
             $roomTitle.textContent = `방 ${$roomTitleValue.value}`;
             $videoWrapper.style.display = "block";
             
-            localPeerConnection = new RTCPeerConnection();
+            localPeerConnection = new RTCPeerConnection({
+                
+            });
             localPeerConnection.addEventListener("icecandidate", iceHandler);
             localPeerConnection.addEventListener("addstream", streamHandler);
 
@@ -105,6 +121,7 @@
         // 방 입장
         async function roomJoin() {
             peerRoomId = $roomTitleValue.value;
+            $roomTitle.textContent = `방 ${peerRoomId}`;
 
             socket.emit("peerRoom", peerRoomId);
         }
@@ -148,10 +165,9 @@
 
         // stream 핸들러
         function streamHandler(e) {
-            console.log("내 스트림", localStream);
-            console.log("니 스트림", e.stream);
+            $localVideo.srcObject = localStream;
 
-            $localVideo.srcObject = e.stream;
+            $targetVideo.srcObject = e.stream;
         }
         
         socket.on("answer", async data => {
@@ -162,9 +178,31 @@
             localPeerConnection.addIceCandidate(data);
         });
 
+        function sendMessage() {
+            const message = $chattingInput.value;
+
+            createMessageTag("나", message);
+
+            socket.emit("chat", {
+                message,
+                roomTitle: peerRoomId,
+            });
+        }
+
+        socket.on("chat", data => {
+            createMessageTag("너", data);
+        });
+
+        function createMessageTag(nickname, message) {
+            const li = document.createElement("li");
+            li.innerText = `${nickname} - ${message}`;
+            $chatList.appendChild(li);
+        }
+
         $soundBtn.addEventListener("click", soundController);
         $videoBtn.addEventListener("click", videoController);
         $roomJoinBtn.addEventListener("click", roomJoin);
+        $sendBtn.addEventListener("click", sendMessage);
     </script>
 </body>
 </html>

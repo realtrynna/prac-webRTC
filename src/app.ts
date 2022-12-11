@@ -4,14 +4,22 @@ import path from "path";
 import express from "express";
 import morgan from "morgan";
 import nunjucks from "nunjucks";
+import dotenv from "dotenv";
 
 import { port } from "./config";
-import { indexRouter, userRouter, mediaRouter } from "./routes/index";
+import { 
+    indexRouter, 
+    userRouter, 
+    mediaRouter,
+    chatRouter, 
+} from "./routes/index";
 
 export async function bootstrap() {
     const app = express();
     const __dirname = path.resolve();
     const __path = path.join(__dirname, "src", "views");
+
+    dotenv.config();
 
     app.set("port", port);
     app.set("view engine", "html");
@@ -26,6 +34,7 @@ export async function bootstrap() {
 
     app.use("/", indexRouter);
     app.use("/user", userRouter);
+    app.use("/chat", chatRouter);
     app.use("/media", mediaRouter);
 
     return app;

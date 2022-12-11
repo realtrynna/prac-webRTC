@@ -7,7 +7,8 @@ import { UserController } from "../controller";
 const userRouter = Router();
 const userController = Container.get(UserController);
 
-userRouter.get("/", asyncHandler(userController.signUpRender));
-userRouter.post("/", asyncHandler(userController.signUp));
+userRouter.get("/signup", asyncHandler(userController.signUpRender));
+userRouter.post("/signup", asyncHandler(userController.signUp));
+userRouter.post("/signin", asyncHandler(userController.signIn));
 
 export { userRouter };

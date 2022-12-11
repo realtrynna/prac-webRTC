@@ -5,58 +5,49 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
+    <style>
+        .signIn {
+            width: 82px;
+        }
+        .signUp {
+            width: 82px;
+        }
+    </style>
 </head>
 <body>
-    <div class="main">
-        <input type="text" class="roomTitleValue" placeholder="방 이름">
-        <button class="roomJoinBtn">입장</button>
-    </div>
-
-    <div class="room">
-        <h3 class="roomTitle"></h3>
-        <ul>
-        </ul>
-        <input type="text" class="roomMessageValue" placeholder="메세지 전송">
-        <button class="sendMessageBtn">전송</button>
-    </div>
-    
-    <div>
-        <a href="/user">회원가입</a>
-    </div>
-
+    <h1>메인</h1>
+    <div><input class="nickname" type="text"></div>
+    <div><input class="password" type="password"></div>
+    <button class="signIn">로그인</button>
+    <button class="signUp">회원가입</button>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
-        const $main = document.querySelector(".main");
-        const $roomTitleInput = document.querySelector(".roomTitleValue");
-        const $roomMessageInput = document.querySelector(".roomMessageValue");
-        const $sendMessageBtn = document.querySelector(".sendMessageBtn");
-        const $connectBtn = document.querySelector(".connectBtn");
-        const $roomJoinBtn = document.querySelector(".roomJoinBtn");
-        const $room = document.querySelector(".room");
-        const $roomTitle = document.querySelector(".roomTitle");
-        const $ul = document.querySelector("ul");
-
-        let currentRoomTitle = null;
-
-        $room.style.display = "none";
-
-        const socket = io.connect("http://localhost:2000/room", {
-            path: "/socket.io",
-            transports: ["websocket"],
-        });
-
-        async function joinRoom() {
-            const req = await axios.post("http://localhost:2000/");
-
-            console.log(req);
-            
-        }
+        // const socket = io.connect("http://localhost:2000/", {
+        //     path: "/socket.io",
+        //     transports: ["websocket"],
+        // });
         
-        socket.on("roomJoin", data => {
-            console.log(data);
+        const $nicknameInput = document.querySelector(".nickname");
+        const $passwordInput = document.querySelector(".password");
+        const $signInBtn = document.querySelector(".signIn");
+        const $signUpBtn = document.querySelector(".signUp");
+    
+        $signUpBtn.addEventListener("click", async () => {
+            window.location.href = "/user/signup";
         });
-        $roomJoinBtn.addEventListener("click", joinRoom);
+        $signInBtn.addEventListener("click", async () => {
+            const { data: { success, token } } = await axios.post("/user/signin", {
+                nickname: $nicknameInput.value,
+                password: $passwordInput.value,
+            });
+
+            if (!success) return alert("error");
+
+            document.cookie = token;
+
+            window.location.href = `/chat?token=${token}`;
+        });
     </script>
 </body>
 </html>

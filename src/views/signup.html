@@ -6,43 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <style>
-        input {
-            margin-bottom: 20px;
-        }
-        button {
-            width: 200px;
+        .signUp {
+            width: 170px;
         }
     </style>
 </head>
 <body>
-    <div>이름<input type="text" class="nickname"></div>
-    <div>비번<input type="password" class="password"></div>
-    <button>가입</button>
+    <h1>회원가입</h1>
+    <div><input class="nickname" type="text" placeholder="닉네임"></div>
+    <div><input class="password" type="password" placeholder="패스워드"></div>
+    <button class="signUp">회원가입</button>
+
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io.connect("http://localhost:1000", {
-            path: "/socket.io",
-            transports: ["websocket"],
-        });
-        const $btn = document.querySelector("button");
+            // const socket = io.connect("http://localhost:2000/", {
+        //     path: "/socket.io",
+        //     transports: ["websocket"],
+        // });
+        
         const $nicknameInput = document.querySelector(".nickname");
         const $passwordInput = document.querySelector(".password");
+        const $signUpBtn = document.querySelector(".signUp");
 
-        $btn.addEventListener("click", async () => {
-            console.log("실행됩니당.");
-            const req = await axios.post("http://localhost:1000/user", {
+        $signUpBtn.addEventListener("click", async () => {
+            const req = await axios.post("http://localhost:2000/user/signup", {
                 nickname: $nicknameInput.value,
                 password: $passwordInput.value,
             });
 
-            console.log(req);
-
-            socket.emit("main", {
-                message: "반갑습니당",
-            });
-
-            console.log("클라이언트 메인 이벤트 전송");
+            window.location.href = "/";
         });
     </script>
 </body>

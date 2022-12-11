@@ -12,8 +12,6 @@ bootstrap()
         
         process.setMaxListeners(15);
 
-        console.log(port);
-
         socketServer(server, app);
         
         server.listen(port, () => {

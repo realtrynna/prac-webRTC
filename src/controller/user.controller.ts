@@ -17,13 +17,28 @@ export class UserController {
     }
 
     signUp = async (
-        req: Request<unknown, unknown, SignUpDto>,
+        { body }: Request<unknown, unknown, SignUpDto>,
         res: Response 
     ) => {
-            
-    
-        // const signUpUserResult = await this.userService.signUp(body);
+        const signUp = await this.userService.signUp(body);
 
-        // return res.status(201).json(signUpUserResult);
-    }   
+        return res.status(201).json({
+            success: true,
+            data: signUp,
+            message: "회원가입 성공",
+        });
+    }
+    
+    signIn = async (
+        { body }: Request<unknown, unknown, SignUpDto>,
+        res: Response
+    ) => {
+        const signIn = await this.userService.signIn(body);
+
+        return res.status(200).json({
+            success: true,
+            token: signIn,
+            message: "로그인 성공",
+        });
+    }
 }

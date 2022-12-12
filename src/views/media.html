@@ -7,6 +7,7 @@
     <title></title>
 </head>
 <body>
+    <h1 class="nickname">{{ nickname }}</h1>
     <h2>방</h2>
     <div class="main">
         <input type="text" class="roomTitleValue" placeholder="방 이름">
@@ -39,6 +40,7 @@
             path: "/socket.io",
             transports: ["websocket"],
         });
+        const $nickname = document.querySelector(".nickname");
         const $chattingInput = document.querySelector(".chattingInput");
         const $sendBtn = document.querySelector(".send");
         const $roomTitle = document.querySelector("h2");
@@ -51,6 +53,7 @@
         const $targetVideo = document.querySelector(".targetVideo");
         const $chatList = document.querySelector(".chatting-list");
 
+        const nickname = $nickname.textContent;
         const userVideoDevice = "videoinput";
         const userMediaConfig = {
             video: {
@@ -65,7 +68,7 @@
         let videoStatus = false;
         let peerRoomId = null;
         let localPeerConnection = null;
-    
+
         $videoWrapper.style.display = "none";
 
         // 오디오 컨트롤
@@ -186,11 +189,13 @@
             socket.emit("chat", {
                 message,
                 roomTitle: peerRoomId,
+                nickname,
             });
         }
 
         socket.on("chat", data => {
-            createMessageTag("너", data);
+            const { message, nickname } = data;
+            createMessageTag(nickname, message);
         });
 
         function createMessageTag(nickname, message) {

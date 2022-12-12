@@ -3,6 +3,10 @@ export interface ISignUp {
     password: string;
 };
 
+export interface IToken {
+    token: string;
+}
+
 export interface ITokenPayload extends Pick<ISignUp, "nickname"> {};
 export interface ITokenVerify {
     nickname: string;

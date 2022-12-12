@@ -1,39 +1,33 @@
+import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { Server } from "socket.io";
 
-type TPeerRoomTitle = string;
-
-interface IOffer {
-    offer: string;
-    roomTitle: string;
-}
-
-interface IAnswer {
-    answer: string;
-    roomTitle: string;
-}
-
-interface IIce {
-    candidate: any;
-    roomTitle: string;
-}
-
-interface IChat {
-    message: string;
-    roomTitle: string;
-}
+import { verifyToken } from "./utils";
+import { 
+    TPeerRoomTitle,
+    IOffer,
+    IAnswer,
+    IIce,
+    IChat,
+} from "./types/index";
 
 export default (server: any, app: any) => {
     const io = new Server(server, { 
+        transports: ["websocket"],
+        allowEIO3: true,
         path: "/socket.io",
+        // 추후 활용(CSR)
         // cors: {
         //     origin: "*",
+        //     methods: ["GET", "POST"],
         // },
     });
 
     app.set("io", io);
 
-    io.on("connection", (socket: any) => {
-        console.log("클라이언트 접속");
+    io.on("connection", async socket => {
+        // @TODO 추후 활용
+        const userId = socket.handshake.headers.cookie as string;
+        const nikc = await verifyToken(userId);
 
         socket.on("peerRoom", (data: TPeerRoomTitle) => {
             const peerRoomTitle = data;
@@ -62,9 +56,9 @@ export default (server: any, app: any) => {
         });
 
         socket.on("chat", (data: IChat) => {
-            const { message, roomTitle } = data;
+            const { message, roomTitle, nickname } = data;
 
-            socket.to(roomTitle).emit("chat", message);
+            socket.to(roomTitle).emit("chat", { message, nickname});
         });
     });
 }

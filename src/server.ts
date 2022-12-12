@@ -1,6 +1,5 @@
 import http from "http";
 import chalk from "chalk";
-import { Server } from "socket.io";
 
 import { bootstrap } from "./app";
 import socketServer from "./socket";

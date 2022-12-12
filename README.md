@@ -1,7 +1,7 @@
-# etc
-```typescript
-Request<params, res.body, req.body, req.query>
-```
+# 22.12.08~12
+## 줌 클론 (서버 사이드 렌더링)
+
+<br>
 
 ## adapter
 A와 B서버가 있을 경우 <br>
@@ -228,7 +228,11 @@ socket.on("answer", async data => {
 })
 ```
 
+<br>
+
 * 피어들간 offer&answer 과정이 끝나면 양쪽에서 iceCandidate 이벤트가 발생함
+
+<br>
 
 ## iceCandidate (Internet Connectivity Establishment) 인터넷 연결 생성
 
@@ -251,11 +255,15 @@ localPeerConnection.addEventListener("icecandidate");
 
 * candidate 이벤트 생성
 
+<br>
+
 ```typescript
 socket.on("ice", (ice, roomTitle) => {
     socket.to(roomTitle).emit("ice", ice);
 })
 ```
+
+<br>
 
 ### STUN
 같은 와이파이가 아닐 경우 서로의 스트림을 받지않음. <br>

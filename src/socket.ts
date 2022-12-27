@@ -15,7 +15,9 @@ export default (server: any, app: any) => {
         transports: ["websocket"],
         allowEIO3: true,
         path: "/socket.io",
-        // 추후 활용(CSR)
+        /**
+         * @ClientSideRendering
+         */
         // cors: {
         //     origin: "*",
         //     methods: ["GET", "POST"],
@@ -25,9 +27,13 @@ export default (server: any, app: any) => {
     app.set("io", io);
 
     io.on("connection", async socket => {
-        // @TODO 추후 활용
+        /**
+         * @TODO 추후 활용
+         */
         const userId = socket.handshake.headers.cookie as string;
-        const nikc = await verifyToken(userId);
+        const nickname = await verifyToken(userId);
+
+        console.log(nickname);
 
         socket.on("peerRoom", (data: TPeerRoomTitle) => {
             const peerRoomTitle = data;

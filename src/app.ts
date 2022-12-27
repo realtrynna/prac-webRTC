@@ -10,8 +10,7 @@ import { port } from "./config";
 import { 
     indexRouter, 
     userRouter, 
-    mediaRouter,
-    chatRouter, 
+    mediaRouter 
 } from "./routes/index";
 
 export async function bootstrap() {
@@ -34,7 +33,6 @@ export async function bootstrap() {
 
     app.use("/", indexRouter);
     app.use("/user", userRouter);
-    app.use("/chat", chatRouter);
     app.use("/media", mediaRouter);
 
     return app;

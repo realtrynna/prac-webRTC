@@ -7,12 +7,15 @@
 A와 B서버가 있을 경우 <br>
 
 A 서버에 있는 클라이언트가 B 클라이언트에게 메세지를 보내고 싶을 경우 사용함 <br>
-
+https://github.com/realtrynna/prac-webRTC.git
 <br>
 
 ## 연결
 1. 연결/종료
 ```typescript
+/**
+ * connection, disconnecting
+ */
 io.on("connection", (socket => {
     socket.on("disconnecting", (data) => {
         console.log(data)

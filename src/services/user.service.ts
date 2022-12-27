@@ -15,7 +15,7 @@ export class UserService {
     async signUp({ nickname, password }: SignUpDto) {
         const findUserByNickname = await this.userDao.findUserByNickname(nickname);
 
-        if (findUserByNickname) return "사용자 존재";
+        if (findUserByNickname) return null;
 
         const hashPassword = await generateHashPassword(password);
 
@@ -32,11 +32,9 @@ export class UserService {
     async signIn({ nickname, password }: SignUpDto) {
         const findUserByNickname = await this.userDao.findUserByNickname(nickname);
         
-        if (!findUserByNickname) return "사용자 미존재";
-
-        const comparePassword = await compareHashPassword(password, findUserByNickname.password);
-        
-        if (!comparePassword) return "비밀번호 불일치";
+        const comparePassword = await compareHashPassword(password, findUserByNickname!.password);
+    
+        if (findUserByNickname === null || !comparePassword) return null;
 
         const token = await generateToken(nickname);
 

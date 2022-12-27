@@ -9,14 +9,14 @@ import { SignUpDto } from "../dtos";
 export class UserController {
     constructor (private readonly userService: UserService) {}
 
-    signUpRender = async (
-        _req: Request,
+    signupRender = async (
+        _: Request,
         res: Response
     ) => {
         return res.render("signup");
     }
 
-    signUp = async (
+    signup = async (
         { body }: Request<unknown, unknown, SignUpDto>,
         res: Response 
     ) => {
@@ -25,11 +25,11 @@ export class UserController {
         return res.status(201).json({
             success: true,
             data: signUp,
-            message: "회원가입 성공",
+            message: "success",
         });
     }
     
-    signIn = async (
+    signin = async (
         { body }: Request<unknown, unknown, SignUpDto>,
         res: Response
     ) => {
@@ -38,7 +38,7 @@ export class UserController {
         return res.status(200).json({
             success: true,
             token: signIn,
-            message: "로그인 성공",
+            message: "success",
         });
     }
 }

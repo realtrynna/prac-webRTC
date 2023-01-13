@@ -2,35 +2,41 @@ import { Service } from "typedi";
 import { User } from "@prisma/client";
 
 import Prisma from "../db/prisma";
-import { SignUpDto } from "../dtos";
+import { SignupDto } from "../dtos";
 
 @Service()
 export class SignUpDao {
-    private readonly prisma
+    private readonly prisma;
 
-    constructor() {this.prisma = Prisma}
+    constructor() {
+        this.prisma = Prisma;
+    }
 
-    async findUserByNickname(nickname: string): Promise<User | null> {
+    async findUserByEmail(email: string): Promise<User | null> {
         return await this.prisma.user.findUnique({
             where: {
-                nickname,
+                email,
             },
         });
     }
 
-    async signUp({ nickname, password }: SignUpDto): Promise<User> {
-        const signUpUser = await this.prisma.user.create({
+    async signup({
+        email,
+        nickname,
+        password,
+    }: SignupDto): Promise<Partial<User>> {
+        const signupUser = await this.prisma.user.create({
             data: {
+                email,
                 nickname,
                 password,
             },
             select: {
                 id: true,
-                password: true,
                 nickname: true,
             },
         });
 
-        return signUpUser
+        return signupUser;
     }
 }

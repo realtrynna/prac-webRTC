@@ -1,53 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <style>
-        .signIn {
-            width: 82px;
-        }
-        .signUp {
-            width: 82px;
-        }
-    </style>
-</head>
-<body>
-    <h1>메인</h1>
-    <div><input class="nickname" type="text"></div>
-    <div><input class="password" type="password"></div>
-    <button class="signIn">로그인</button>
-    <button class="signUp">회원가입</button>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script>
-        // const socket = io.connect("http://localhost:2000/", {
-        //     path: "/socket.io",
-        //     transports: ["websocket"],
-        // });
-        
-        const $nicknameInput = document.querySelector(".nickname");
-        const $passwordInput = document.querySelector(".password");
-        const $signInBtn = document.querySelector(".signIn");
-        const $signUpBtn = document.querySelector(".signUp");
-    
-        $signUpBtn.addEventListener("click", async () => {
-            window.location.href = "/user/signup";
-        });
-        $signInBtn.addEventListener("click", async () => {
-            const { data: { success, token } } = await axios.post("/user/signin", {
-                nickname: $nicknameInput.value,
-                password: $passwordInput.value,
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title></title>
+        <style>
+            .signIn {
+                width: 82px;
+            }
+            .signUp {
+                width: 82px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>메인</h1>
+        <div><input class="email" type="text" /></div>
+        <div><input class="password" type="password" /></div>
+        <button class="signIn">로그인</button>
+        <button class="signUp">회원가입</button>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
+            // const socket = io.connect("http://localhost:2000/", {
+            //     path: "/socket.io",
+            //     transports: ["websocket"],
+            // });
+
+            const $emailInput = document.querySelector(".email");
+            const $passwordInput = document.querySelector(".password");
+            const $signInBtn = document.querySelector(".signIn");
+            const $signUpBtn = document.querySelector(".signUp");
+
+            $signUpBtn.addEventListener("click", async () => {
+                window.location.href = "/user/signup";
             });
+            $signInBtn.addEventListener("click", async () => {
+                const {
+                    data: { data: token, success },
+                } = await axios.post("/user/signin", {
+                    email: $emailInput.value,
+                    password: $passwordInput.value,
+                });
 
-            if (!success) return alert("error");
+                if (!success) return alert("error");
 
-            document.cookie = token;
-
-            window.location.href = `/media?token=${token}`;
-        });
-    </script>
-</body>
+                window.location.href = `/room?token=${token}`;
+            });
+        </script>
+    </body>
 </html>

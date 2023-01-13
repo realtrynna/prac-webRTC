@@ -1,42 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <style>
-        .signUp {
-            width: 170px;
-        }
-    </style>
-</head>
-<body>
-    <h1>회원가입</h1>
-    <div><input class="nickname" type="text" placeholder="닉네임"></div>
-    <div><input class="password" type="password" placeholder="패스워드"></div>
-    <button class="signUp">회원가입</button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title></title>
+        <style>
+            .signUp {
+                width: 170px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>회원가입</h1>
+        <div><input class="email" type="email" placeholder="이메일" /></div>
+        <div><input class="nickname" type="text" placeholder="닉네임" /></div>
+        <div><input class="password" type="password" placeholder="패스워드" /></div>
+        <button class="signUp">회원가입</button>
 
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
             // const socket = io.connect("http://localhost:2000/", {
-        //     path: "/socket.io",
-        //     transports: ["websocket"],
-        // });
-        
-        const $nicknameInput = document.querySelector(".nickname");
-        const $passwordInput = document.querySelector(".password");
-        const $signUpBtn = document.querySelector(".signUp");
+            //     path: "/socket.io",
+            //     transports: ["websocket"],
+            // });
 
-        $signUpBtn.addEventListener("click", async () => {
-            const req = await axios.post("http://localhost:2000/user/signup", {
-                nickname: $nicknameInput.value,
-                password: $passwordInput.value,
+            const $emailInput = document.querySelector(".email");
+            const $nicknameInput = document.querySelector(".nickname");
+            const $passwordInput = document.querySelector(".password");
+            const $signUpBtn = document.querySelector(".signUp");
+
+            $signUpBtn.addEventListener("click", async () => {
+                const req = await axios.post("http://localhost:2000/user/signup", {
+                    email: $emailInput.value,
+                    nickname: $nicknameInput.value,
+                    password: $passwordInput.value,
+                });
+
+                window.location.href = "/";
             });
-
-            window.location.href = "/";
-        });
-    </script>
-</body>
+        </script>
+    </body>
 </html>

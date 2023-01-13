@@ -1,14 +1,17 @@
-export interface ISignUp {
+export interface ISignup {
+    email: string;
     nickname: string;
     password: string;
-};
-
-export interface IToken {
-    token: string;
 }
 
-export interface ITokenPayload extends Pick<ISignUp, "nickname"> {};
+export interface ISignin extends Omit<ISignup, "nickname"> {}
+
+export interface ITokenPayload extends Pick<ISignup, "nickname"> {
+    userId: number;
+}
+
 export interface ITokenVerify {
+    userId: number;
     nickname: string;
     iat: number;
     exp: number;
@@ -21,5 +24,3 @@ export interface IPrivateKey {
 }
 
 export type TPublicKey = string;
-
-

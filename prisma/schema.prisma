@@ -10,26 +10,43 @@ datasource db {
 
 model User {
     id              Int         @id @default(autoincrement())
-    nickname        String      @unique(map: "nickname_UNIQUE") @db.VarChar(20)
+    email           String      @unique @db.VarChar(100)
+    nickname        String      @db.VarChar(20)
     password        String      @db.VarChar(255)
+    createdAt       DateTime    @default(now()) @map("created_at")
+    deletedAt       DateTime?   @map("deleted_at")
 
     room            Room?
-    chat            Chat[]
+    memos           Memo[]
+    chats           Chat[]
 
     @@map("users")
 }
 
+model Memo {
+    id              Int         @id @default(autoincrement())
+    content         String      @db.VarChar(255)
+    imageUrl        String?     @db.VarChar(255) @map("image_url")
+    createdAt       DateTime    @default(now()) @map("created_at")
+
+    user            User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userId          Int         
+
+    @@map("memos")
+} 
+
 model Room {
     id              Int         @id @default(autoincrement())
     title           String      @db.VarChar(255)
-    owner           String      @db.VarChar(255)
-    max             Int         @default(10)
     password        String?     @db.VarChar(255)
+    max             Int         @default(10)
+    createdAt       DateTime    @default(now()) @map("created_at")
+    deletedAt       DateTime?   @map("deleted_at")
 
-    user            User        @relation(fields: [userId], references: [id])
+    user            User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
     userId          Int         @unique
 
-    chat            Chat?
+    chats           Chat[]
 
     @@map("rooms")
 }
@@ -37,15 +54,15 @@ model Room {
 model Chat {
     id              Int         @id @default(autoincrement())
     content         String      @db.VarChar(255)
-    image           String      @db.VarChar(255)        
-    
-    user            User        @relation(fields: [userId], references: [id])
-    userId          Int         @unique
-    room            Room        @relation(fields: [roomId], references: [id])
-    roomId          Int         @unique
+    imageUrl        String?     @db.VarChar(255) @map("image_url")
+    createdAt       DateTime    @default(now()) @map("created_at")
+    deletedAt       DateTime?   @map("deleted_at")
+
+    user            User        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    userId          Int
+
+    room            Room        @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    roomId          Int
 
     @@map("chats")
 }
-
-
-

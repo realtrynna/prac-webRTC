@@ -1,17 +1,12 @@
 import { DefaultEventsMap } from "@socket.io/component-emitter";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 import { verifyToken } from "./utils";
-import { 
-    TPeerRoomTitle,
-    IOffer,
-    IAnswer,
-    IIce,
-    IChat,
-} from "./types/index";
+import { TPeerRoomTitle, IOffer, IAnswer, IIce, IChat } from "./types/index";
+import chalk from "chalk";
 
 export default (server: any, app: any) => {
-    const io = new Server(server, { 
+    const io = new Server(server, {
         transports: ["websocket"],
         allowEIO3: true,
         path: "/socket.io",
@@ -26,45 +21,14 @@ export default (server: any, app: any) => {
 
     app.set("io", io);
 
-    io.on("connection", async socket => {
-        /**
-         * @TODO 추후 활용
-         */
-        const userId = socket.handshake.headers.cookie as string;
-        const nickname = await verifyToken(userId);
+    const room = io.of("/room");
+    const chat = io.of("/chat");
 
-        console.log(nickname);
-
-        socket.on("peerRoom", (data: TPeerRoomTitle) => {
-            const peerRoomTitle = data;
-            
-            socket.join(peerRoomTitle);
-            
-            socket.to(peerRoomTitle).emit("peerRoomJoin", "방 입장");
-        });
-
-        socket.on("offer", (data: IOffer) => {
-            const { offer, roomTitle } = data;
-
-            socket.to(roomTitle).emit("offer", offer);
-        });
-
-        socket.on("answer", (data: IAnswer) => {
-            const { answer, roomTitle } = data;
-
-            socket.to(roomTitle).emit("answer", answer);
-        });
-
-        socket.on("ice", (data: IIce) => {
-            const { candidate, roomTitle } = data;
-
-            socket.to(roomTitle).emit("ice", candidate);
-        });
-
-        socket.on("chat", (data: IChat) => {
-            const { message, roomTitle, nickname } = data;
-
-            socket.to(roomTitle).emit("chat", { message, nickname});
-        });
+    room.on("connection", (socket) => {
+        console.log("룸 접속!!!!!!!!!!!!!");
     });
-}
+
+    chat.on("connection", (socket) => {
+        console.log("채팅 접속!!!!!!!!!!!");
+    });
+};

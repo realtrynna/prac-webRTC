@@ -1,43 +1,50 @@
 import { Service } from "typedi";
 
 import { SignUpDao } from "../daos";
-import { SignUpDto } from "../dtos";
-import { 
-    generateHashPassword, 
+import { SigninDto, SignupDto } from "../dtos";
+import {
+    generateHashPassword,
     compareHashPassword,
-    generateToken
-} from "../utils/index";
+    generateToken,
+} from "../utils";
 
 @Service()
 export class UserService {
     constructor(private readonly userDao: SignUpDao) {}
 
-    async signUp({ nickname, password }: SignUpDto) {
-        const findUserByNickname = await this.userDao.findUserByNickname(nickname);
+    async signUp({ email, nickname, password }: SignupDto) {
+        const findUserByEmail = await this.userDao.findUserByEmail(email);
 
-        if (findUserByNickname) return null;
+        if (findUserByEmail) return null;
 
         const hashPassword = await generateHashPassword(password);
 
         const input = {
+            email,
             nickname,
             password: hashPassword,
-        }
+        };
 
-        const signUpUser = await this.userDao.signUp(input);
+        const signUpUser = await this.userDao.signup(input);
 
         return signUpUser;
     }
 
-    async signIn({ nickname, password }: SignUpDto) {
-        const findUserByNickname = await this.userDao.findUserByNickname(nickname);
-        
-        const comparePassword = await compareHashPassword(password, findUserByNickname!.password);
-    
-        if (findUserByNickname === null || !comparePassword) return null;
+    async signIn({ email, password }: SigninDto) {
+        const findUserByEmail = await this.userDao.findUserByEmail(email);
 
-        const token = await generateToken(nickname);
+        const comparePassword = await compareHashPassword(
+            password,
+            findUserByEmail!.password,
+        );
+
+        if (findUserByEmail === null || !comparePassword) return null;
+
+        const token = await generateToken(
+            findUserByEmail.id,
+            findUserByEmail.nickname,
+        );
 
         return token;
     }
-}   
+}

@@ -5,13 +5,10 @@ import express from "express";
 import morgan from "morgan";
 import nunjucks from "nunjucks";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 import { port } from "./config";
-import { 
-    indexRouter, 
-    userRouter, 
-    mediaRouter 
-} from "./routes/index";
+import { indexRouter, userRouter, roomRouter } from "./routes/index";
 
 export async function bootstrap() {
     const app = express();
@@ -30,10 +27,11 @@ export async function bootstrap() {
     app.use(morgan("dev"));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
+    app.use(cookieParser());
 
     app.use("/", indexRouter);
     app.use("/user", userRouter);
-    app.use("/media", mediaRouter);
+    app.use("/room", roomRouter);
 
     return app;
 }

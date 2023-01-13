@@ -3,8 +3,9 @@ import { sign, verify, SignOptions } from "jsonwebtoken";
 import { privateKey, publicKey } from "../config/index";
 import { ITokenPayload } from "../types/index";
 
-export async function generateToken(nickname: string) {
+export async function generateToken(userId: number, nickname: string) {
     const payload: ITokenPayload = {
+        userId,
         nickname,
     };
 
@@ -14,11 +15,7 @@ export async function generateToken(nickname: string) {
         algorithm: "RS256",
     };
 
-    return await sign(
-        payload,
-        privateKey,
-        options,
-    );
+    return await sign(payload, privateKey, options);
 }
 
 export async function verifyToken(token: string) {

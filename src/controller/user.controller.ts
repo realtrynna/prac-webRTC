@@ -3,22 +3,20 @@ import { Service } from "typedi";
 
 import { UserService } from "../services";
 
-import { SignUpDto } from "../dtos";
+import { SignupDto } from "../dtos";
+import { SigninDto } from "../dtos";
 
 @Service()
 export class UserController {
-    constructor (private readonly userService: UserService) {}
+    constructor(private readonly userService: UserService) {}
 
-    signupRender = async (
-        _: Request,
-        res: Response
-    ) => {
+    signupRender = async (_: Request, res: Response) => {
         return res.render("signup");
-    }
+    };
 
     signup = async (
-        { body }: Request<unknown, unknown, SignUpDto>,
-        res: Response 
+        { body }: Request<unknown, unknown, SignupDto>,
+        res: Response,
     ) => {
         const signUp = await this.userService.signUp(body);
 
@@ -27,18 +25,18 @@ export class UserController {
             data: signUp,
             message: "success",
         });
-    }
-    
+    };
+
     signin = async (
-        { body }: Request<unknown, unknown, SignUpDto>,
-        res: Response
+        { body }: Request<unknown, unknown, SigninDto>,
+        res: Response,
     ) => {
         const signIn = await this.userService.signIn(body);
 
-        return res.status(200).json({
+        return res.status(200).cookie("token", signIn).json({
             success: true,
-            token: signIn,
+            data: signIn,
             message: "success",
         });
-    }
+    };
 }

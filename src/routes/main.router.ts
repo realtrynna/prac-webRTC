@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Container } from "typedi";
 
 import { asyncHandler } from "../utils/index";
-import { IndexController } from "../controller";
+import { IndexController } from "../controllers";
 import { authMiddleware } from "../middlewares";
 
 const indexRouter = Router();

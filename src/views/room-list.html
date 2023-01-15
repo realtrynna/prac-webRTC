@@ -9,22 +9,48 @@
     <body>
         <div>
             <h2>닉네임 {{ nickname }}</h2>
-            <button class="createRoom">방 생성하기</button>
+            <button class="createRoom">방 생성하 기</button>
         </div>
         <h3>방 목록</h3>
+            {% for room in rooms %}
+            <div>
+                <div>
+                    <input type="hidden" class="roomId" value="{{ room.id }}">
+                    {{ room.title }}
+                    {{ room.max }}
+                    {{ room.userId }}
+                    <button class="joinRoom">입장</button>
+                </div>
+            </div>
+            {% endfor %}
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script>
-            const socket = io.connect("http://localhost:2000", {
+            // 방 목록 전달 주소
+            const socket = io.connect("http://localhost:2000/room", {
                 path: "/socket.io",
                 transports: ["websocket"],
             });
 
             const $createRoomBtn = document.querySelector(".createRoom");
+            const $joinRoomBtn = document.querySelectorAll(".joinRoom");
 
             $createRoomBtn.addEventListener("click", () => {
                 window.location.href = "/room/create";
             });
+            $joinRoomBtn.forEach(tag => {
+                tag.addEventListener("click", async () => {
+                    const roomId = tag.parentElement.querySelector(".roomId").value;
+
+                    const req = await axios.get(`http://localhost:2000/room/join/${roomId}`);
+
+                    window.location.href = `/room/join/${roomId}`;
+                });
+            });
+
+            socket.on("newRoom", data => {
+                window.location.href = "/room";
+            }); 
         </script>
     </body>
 </html>

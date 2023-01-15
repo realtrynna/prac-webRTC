@@ -7,13 +7,33 @@
         <title></title>
     </head>
     <body>
-        채팅방입니다^^
+        <input type="hidden" class="roomId" value="{{ roomId }}">
+        <input type="hidden" class="nickname" value="{{ nickname }}">
+        <div><h3>Chat</h3></div>
+        <div><h4>{{ nickname }}</h4></div>
+        <input type="text" class="text">
+        <button class="send">send</button>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
-            const socket = io.connect("http://localhost:2000/", {
+            const $roomId = document.querySelector(".roomId").value;
+            const $nickname = document.querySelector(".nickname");
+            const $text = document.querySelector(".text");
+            const $sendBtn = document.querySelector(".send");
+            const socket = io.connect(`http://localhost:2000/chat?roomId=${$roomId}`, {
                 path: "/socket.io",
                 transports: ["websocket"],
+            });
+
+            $sendBtn.addEventListener("click", async () => {
+                const req = await axios.post(`http://localhost:2000/room/chat/${$roomId}`, {
+                    text: $text.value,
+                });
+            });
+
+            socket.on("chat", data => {
+                console.log(data);
+                console.log($nickname.value);
             });
         </script>
     </body>

@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.ts",
   "scripts": {
-    "start:dev": "tsc-watch --onSuccess \"node dist/server.js\""
+    "start:dev": "tsc-watch --onSuccess \"node dist/server.js\"",
+    "db:migrate": "npx prisma migrate dev --name practice && npx prisma generate"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 import { Service } from "typedi";
 
 import { RoomService } from "../services";
@@ -26,10 +26,14 @@ export class ListController {
     };
 
     createRoom = async (
-        { body }: Request<unknown, unknown, CreateRoomDto>,
+        { body, app }: Request<unknown, unknown, CreateRoomDto>,
         res: Response,
     ) => {
         const { id: roomId } = await this.roomService.createRoom(body);
+
+        const io = app.get("io");
+
+        io.of("/room").emit("newRoom", roomId);
 
         return res.status(201).json({
             success: true,
@@ -39,13 +43,24 @@ export class ListController {
     };
 
     joinRoomRender = async (
-        { params: { roomId: roomId } }: Request<any>,
+        { params: { roomId }, app }: Request<any>,
         res: Response,
     ) => {
+        console.log("유저 아이디", res.locals.id);
+        console.log("유저 닉네임", res.locals.nickname);
+
         return res.render("chat", {
             roomId,
             userId: res.locals?.id,
             nickname: res.locals?.nickname,
         });
     };
+
+    createChat = async (
+        { body: { text: chat }, params: { roomId }, app }: Request<any>,
+        res: Response
+    ) => {
+        app.get('io').to(roomId).emit("chat", chat);
+        return res.end();
+    }
 }

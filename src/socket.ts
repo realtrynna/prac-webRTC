@@ -5,6 +5,12 @@ import { verifyToken } from "./utils";
 import { TPeerRoomTitle, IOffer, IAnswer, IIce, IChat } from "./types/index";
 import chalk from "chalk";
 
+interface ISocketQuery {
+    roomId: string;
+    EIO: string;
+    transport: string;
+}
+
 export default (server: any, app: any) => {
     const io = new Server(server, {
         transports: ["websocket"],
@@ -25,10 +31,17 @@ export default (server: any, app: any) => {
     const chat = io.of("/chat");
 
     room.on("connection", (socket) => {
-        console.log("룸 접속!!!!!!!!!!!!!");
     });
 
     chat.on("connection", (socket) => {
-        console.log("채팅 접속!!!!!!!!!!!");
+        console.log(chalk.bgGreenBright("Client Chat Connection"));
+
+        const { roomId } = socket.handshake.query;
+        
+        if (!roomId) return null;
+        
     });
 };
+
+
+

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Container } from "typedi";
 
 import { asyncHandler } from "../utils/index";
-import { ListController } from "../controller";
+import { ListController } from "../controllers";
 import { authMiddleware } from "../middlewares";
 
 const roomRouter = Router();
@@ -26,6 +26,12 @@ roomRouter.get(
     "/join/:roomId",
     authMiddleware,
     asyncHandler(roomController.joinRoomRender),
+);
+
+roomRouter.post(
+    "/chat/:roomId",
+    authMiddleware,
+    asyncHandler(roomController.createChat),
 );
 
 export { roomRouter };

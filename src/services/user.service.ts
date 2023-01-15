@@ -31,6 +31,7 @@ export class UserService {
     }
 
     async signIn({ email, password }: SigninDto) {
+        console.log(password);
         const findUserByEmail = await this.userDao.findUserByEmail(email);
 
         const comparePassword = await compareHashPassword(
@@ -39,6 +40,7 @@ export class UserService {
         );
 
         if (findUserByEmail === null || !comparePassword) return null;
+
 
         const token = await generateToken(
             findUserByEmail.id,

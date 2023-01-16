@@ -1,8 +1,8 @@
-import { Request, response, Response } from "express";
+import { Request, RequestHandler, response, Response } from "express";
 import { Service } from "typedi";
 
 import { RoomService } from "../services";
-import { CreateRoomDto } from "../dtos/rooms/create.room.dto";
+import { CreateRoomDto, CreateChatDto } from "../dtos/index";
 
 @Service()
 export class ListController {
@@ -26,7 +26,7 @@ export class ListController {
     };
 
     createRoom = async (
-        { body, app }: Request<unknown, unknown, CreateRoomDto>,
+        { app, body }: Request<unknown, unknown, CreateRoomDto, unknown>,
         res: Response,
     ) => {
         const { id: roomId } = await this.roomService.createRoom(body);
@@ -43,24 +43,39 @@ export class ListController {
     };
 
     joinRoomRender = async (
-        { params: { roomId }, app }: Request<any>,
+        {
+            app,
+            params: { roomId },
+        }: Request<{ roomId: string }, unknown, unknown, unknown>,
         res: Response,
     ) => {
-        console.log("유저 아이디", res.locals.id);
-        console.log("유저 닉네임", res.locals.nickname);
+        const room = await this.roomService.findRoomById(+roomId);
+
+        const result = room[0].chats;
 
         return res.render("chat", {
             roomId,
             userId: res.locals?.id,
             nickname: res.locals?.nickname,
+            chats: result,
         });
     };
 
     createChat = async (
-        { body: { text: chat }, params: { roomId }, app }: Request<any>,
-        res: Response
+        {
+            app,
+            params: { roomId },
+            body,
+            query,
+        }: Request<{ roomId: any }, unknown, CreateChatDto, unknown>,
+        res: Response,
     ) => {
-        app.get('io').to(roomId).emit("chat", chat);
+        const createChat = await this.roomService.createChat(
+            +res.locals.id,
+            +roomId,
+            body,
+        );
+
         return res.end();
-    }
+    };
 }

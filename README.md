@@ -1,17 +1,13 @@
-# Chat Service
+## Stream
 
--   Socket 연결 시 Socket에다 고유 id를 부여
+1. Stream, peerConnection 생성
 
-<br>
+```javascript
+let localStream = null;
+let localPeerConnection = null;
 
-**Event Sender** <br>
+localStream = await navigator.mediaDevices.getUserMedia(userMediaConfig);
+videoTag.srcObject = localStream;
 
-```typescript
-socket.emit("Event Name", sendData);
-```
-
-**Event Receiver** <br>
-
-```typescript
-socket.on("Event Name", receiveData);
+localPeerConnection = new RTCPeerConnection({});
 ```

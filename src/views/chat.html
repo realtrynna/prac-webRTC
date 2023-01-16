@@ -7,12 +7,22 @@
         <title></title>
     </head>
     <body>
-        <input type="hidden" class="roomId" value="{{ roomId }}">
-        <input type="hidden" class="nickname" value="{{ nickname }}">
+        <input type="hidden" class="roomId" value="{{ roomId }}" />
+        <input type="hidden" class="nickname" value="{{ nickname }}" />
         <div><h3>Chat</h3></div>
-        <div><h4>{{ nickname }}</h4></div>
-        <input type="text" class="text">
+        <div><h4>{{ userId }}</h4></div>
+        <div>
+            <video class="localVideo" autoplay playsinline></video>
+        </div>
+        <div>
+            <video class="targetVideo" autoplay playsinline></video>
+        </div>
+        <input type="text" class="text" />
         <button class="send">send</button>
+        {% for chat in chats %}
+        <div>{{ chat.content }} {{ chat.user.nickname }}</div>
+        {% endfor %}
+        <ul></ul>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
@@ -20,20 +30,124 @@
             const $nickname = document.querySelector(".nickname");
             const $text = document.querySelector(".text");
             const $sendBtn = document.querySelector(".send");
-            const socket = io.connect(`http://localhost:2000/chat?roomId=${$roomId}`, {
-                path: "/socket.io",
-                transports: ["websocket"],
-            });
+            const $ul = document.querySelector("ul");
+            const socket = io.connect(
+                `http://localhost:2000/chat?roomId=${$roomId}`,
+                {
+                    path: "/socket.io",
+                    transports: ["websocket"],
+                },
+            );
+            const $video = document.querySelector(".localVideo");
+            const $targetVideo = document.querySelector(".targetVideo");
 
-            $sendBtn.addEventListener("click", async () => {
-                const req = await axios.post(`http://localhost:2000/room/chat/${$roomId}`, {
-                    text: $text.value,
+            let localStream = null;
+            let localPeerConnection = null;
+            // localPeerConnection = new RTCPeerConnection({});
+            const userMediaConfig = {
+                video: {
+                    width: 100,
+                    height: 100,
+                },
+                audio: false,
+            };
+
+            (async function iniy() {
+                localStream = await navigator.mediaDevices.getUserMedia(
+                    userMediaConfig,
+                );
+
+                $video.srcObject = localStream;
+
+                localPeerConnection = new RTCPeerConnection({});
+
+                localPeerConnection.addEventListener("icecandidate", (e) => {
+                    const { candidate } = e;
+
+                    console.log("아이스 발생!!!!!!!!!!!!11");
+
+                    socket.emit("ice", {
+                        candidate,
+                        roomId: $roomId,
+                    });
+                });
+                localPeerConnection.addEventListener("addstream", (e) => {
+                    console.log("스트림은", e);
+
+                    $video.srcObject = localStream;
+                    $targetVideo.srcObject = e.stream;
+                });
+
+                localStream
+                    .getTracks()
+                    .forEach((e) =>
+                        localPeerConnection.addTrack(e, localStream),
+                    );
+            })();
+
+            socket.emit("join", $roomId);
+
+            socket.on("join", async (data) => {
+                const li = document.createElement("li");
+                li.textContent = data;
+                $ul.append(li);
+
+                const offer = await localPeerConnection.createOffer();
+
+                localPeerConnection.setLocalDescription(offer);
+
+                socket.emit("offer", {
+                    offer,
+                    roomId: $roomId,
                 });
             });
 
-            socket.on("chat", data => {
-                console.log(data);
-                console.log($nickname.value);
+            socket.on("offer", async (data) => {
+                localPeerConnection.setRemoteDescription(data);
+                const answer = await localPeerConnection.createAnswer();
+                localPeerConnection.setLocalDescription(answer);
+                // console.log("offer를 받았습니다.", data);
+                // console.log("Answer를 보냅니다.", answer);
+                socket.emit("answer", {
+                    answer,
+                    roomId: $roomId,
+                });
+            });
+
+            socket.on("answer", async (data) => {
+                console.log("Answer 데이터", data);
+                localPeerConnection.setRemoteDescription(data);
+            });
+
+            socket.on("ice", (data) => {
+                console.log("상대방이 보낸 아이스 데이터[", data);
+                localPeerConnection.addIceCandidate(data);
+            });
+
+            $sendBtn.addEventListener("click", async () => {
+                const req = await axios.post(
+                    `http://localhost:2000/room/chat/${$roomId}?error=unknown`,
+                    {
+                        content: $text.value,
+                    },
+                );
+
+                socket.emit("chat", {
+                    roomId: $roomId,
+                    content: $text.value,
+                    sender: $nickname.value,
+                });
+
+                const li = document.createElement("li");
+                li.textContent = `나 ${$text.value}`;
+                $ul.append(li);
+            });
+
+            socket.on("chat", (data) => {
+                console.log("메세지 수신");
+                const li = document.createElement("li");
+                li.textContent = `${data.sender} ${data.content}`;
+                $ul.append(li);
             });
         </script>
     </body>
